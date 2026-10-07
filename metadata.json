@@ -1,0 +1,6 @@
+{
+  "name": "Yadav Medical PPT Generator for MBBS",
+  "description": "NMC-CBME Biochemistry Competency presentation generator for MBBS faculty and students with high-yield visual pathways, speaker notes, clinical cases, and PPTX/PDF export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
