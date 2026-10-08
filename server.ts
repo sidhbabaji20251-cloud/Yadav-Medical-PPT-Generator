@@ -15,18 +15,9 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json({ limit: '20mb' }));
 
-// Initialize Google GenAI on the server
+// Initialize Google GenAI on the server with merged API key
 const apiKey = process.env.GEMINI_API_KEY || '';
-const ai = apiKey
-  ? new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
-    })
-  : null;
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 // Endpoint for AI-powered lecture enrichment
 app.post('/api/generate-ppt', async (req, res) => {
@@ -67,15 +58,38 @@ Return strictly valid JSON matching this schema:
   "casePresentation": "string"
 }`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: promptText,
-      config: {
-        responseMimeType: 'application/json',
-      },
-    });
+    // Race against a 7-second timeout so the response never hangs
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('AI response timed out')), 7000)
+    );
 
-    const textOutput = response.text || '{}';
+    let response: any = null;
+    try {
+      const generatePromise = ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: promptText,
+        config: {
+          responseMimeType: 'application/json',
+        },
+      });
+      response = await Promise.race([generatePromise, timeoutPromise]);
+    } catch (primaryErr: any) {
+      console.warn('Primary model busy, attempting gemini-flash-latest:', primaryErr?.message);
+      try {
+        const fallbackPromise = ai.models.generateContent({
+          model: 'gemini-flash-latest',
+          contents: promptText,
+          config: {
+            responseMimeType: 'application/json',
+          },
+        });
+        response = await Promise.race([fallbackPromise, timeoutPromise]);
+      } catch (secErr) {
+        throw primaryErr;
+      }
+    }
+
+    const textOutput = response?.text || '{}';
     let parsedData = {};
     try {
       parsedData = JSON.parse(textOutput);
@@ -88,7 +102,7 @@ Return strictly valid JSON matching this schema:
       data: parsedData,
     });
   } catch (error: any) {
-    console.error('Gemini API generation error:', error);
+    console.error('Gemini API generation error:', error?.message || error);
     return res.json({
       success: false,
       error: error.message || 'Gemini generation failed',

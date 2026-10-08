@@ -17,6 +17,7 @@ import { CompetencySelector } from './components/CompetencySelector';
 import { PresenterModeModal } from './components/PresenterModeModal';
 import { ReferenceModal } from './components/ReferenceModal';
 import { SlideEditorModal } from './components/SlideEditorModal';
+import { ShareModal } from './components/ShareModal';
 import {
   Sparkles,
   BookOpen,
@@ -26,7 +27,8 @@ import {
   ChevronDown,
   ChevronUp,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Share2
 } from 'lucide-react';
 
 export default function App() {
@@ -58,6 +60,7 @@ export default function App() {
   const [showCompetencyBrowser, setShowCompetencyBrowser] = useState(false);
   const [showPresenterMode, setShowPresenterMode] = useState(false);
   const [showReferenceModal, setShowReferenceModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'info'; text: string } | null>(null);
 
@@ -236,6 +239,7 @@ export default function App() {
         onExportPDF={handleExportPDF}
         onOpenPresenterMode={() => setShowPresenterMode(true)}
         onOpenReferences={() => setShowReferenceModal(true)}
+        onOpenShareModal={() => setShowShareModal(true)}
       />
 
       {/* Main Content Area */}
@@ -267,6 +271,7 @@ export default function App() {
           onDownloadPPTX={handleDownloadPPTX}
           onExportPDF={handleExportPDF}
           onBrowseCompetencies={() => setShowCompetencyBrowser(prev => !prev)}
+          onOpenShareModal={() => setShowShareModal(true)}
         />
 
         {/* Collapsible NMC CBME Competency Drawer */}
@@ -371,6 +376,13 @@ export default function App() {
         <div className="flex flex-wrap items-center justify-center gap-4">
           <span className="font-semibold text-slate-300">Yadav Medical PPT Generator for MBBS</span>
           <span>•</span>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="text-emerald-400 hover:text-emerald-300 underline font-semibold flex items-center gap-1"
+          >
+            <span>Public Freeware Access Link (100% Free)</span>
+          </button>
+          <span>•</span>
           <span>National Medical Commission (NMC) Competency-Based Medical Education (CBME)</span>
           <span>•</span>
           <button
@@ -381,9 +393,14 @@ export default function App() {
           </button>
         </div>
         <p className="text-[11px] text-slate-500">
-          Completely free, no login required. Downloaded PowerPoint (.pptx) presentations can be edited freely in Microsoft PowerPoint, Apple Keynote, and Google Slides.
+          Completely free freeware, API key pre-merged, no login required. Downloaded PowerPoint (.pptx) presentations can be edited freely in Microsoft PowerPoint, Apple Keynote, and Google Slides.
         </p>
       </footer>
+
+      {/* Freeware Public Sharing Modal */}
+      {showShareModal && (
+        <ShareModal onClose={() => setShowShareModal(false)} />
+      )}
 
       {/* Presenter Mode Modal */}
       {showPresenterMode && (

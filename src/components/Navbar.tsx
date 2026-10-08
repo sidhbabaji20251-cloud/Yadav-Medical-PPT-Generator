@@ -9,7 +9,8 @@ import {
   BookCheck,
   Palette,
   GraduationCap,
-  Radio
+  Radio,
+  Share2
 } from 'lucide-react';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
   onExportPDF: () => void;
   onOpenPresenterMode: () => void;
   onOpenReferences: () => void;
+  onOpenShareModal: () => void;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -30,6 +32,7 @@ export const Navbar: React.FC<Props> = ({
   onExportPDF,
   onOpenPresenterMode,
   onOpenReferences,
+  onOpenShareModal,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full bg-slate-950/90 backdrop-blur-md border-b border-slate-800 text-slate-100">
@@ -86,6 +89,16 @@ export const Navbar: React.FC<Props> = ({
           >
             <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
             <span>Auto Speak (Dr. R S Yadav)</span>
+          </button>
+
+          {/* Share Freeware Link Button */}
+          <button
+            onClick={onOpenShareModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-950/70 hover:bg-sky-900 border border-sky-500/50 text-sky-200 text-xs font-bold transition shadow-sm"
+            title="Open Freeware Public Link & Share with Students/Faculty"
+          >
+            <Share2 className="w-3.5 h-3.5 text-sky-400" />
+            <span>Share URL (100% Free)</span>
           </button>
 
           {/* References & Integrity Button */}
